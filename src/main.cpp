@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Mecanum.h>
 
 #if 1
 #define DEBUG_P(...) Serial.print(__VA_ARGS__)
@@ -7,10 +8,6 @@
 #define DEBUG_P(...)
 #define DEBUG_PLN(...)
 #endif
-
-#define M_STOP 0
-#define M_FORWARD 1
-#define M_BACKWARD 2
 
 #define CMD_Stop 0
 #define CMD_moveForward 1
@@ -27,176 +24,57 @@
 byte curr_cmd = CMD_Stop, last_cmd = CMD_Stop;
 int cmd_last_update = 0, timeout_cnt = 0;
 
-class MOTOR
-{
-private:
-  byte IN1, IN2;
-
-public:
-  MOTOR(byte in1, byte in2);
-  void set_speed(byte en);
-};
-
-void MOTOR::set_speed(byte dir)
-{
-  switch (dir)
-  {
-  case M_FORWARD:
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
-    break;
-  case M_BACKWARD:
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
-    break;
-  case M_STOP:
-  default:
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    break;
-  }
-}
-
-MOTOR::MOTOR(byte in1, byte in2)
-{
-  IN1 = in1;
-  IN2 = in2;
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-}
-
-MOTOR M_FrontLeft(2, 3), //Setup the Pins for four motors
-    M_FrontRight(4, 5),
-    M_RearLeft(5, 7),
-    M_RearRight(8, 9);
-
-void Stop()
-{
-  M_FrontLeft.set_speed(M_STOP);
-  M_FrontRight.set_speed(M_STOP);
-  M_RearLeft.set_speed(M_STOP);
-  M_RearRight.set_speed(M_STOP);
-}
-void moveForward()
-{
-  M_FrontLeft.set_speed(M_FORWARD);
-  M_FrontRight.set_speed(M_FORWARD);
-  M_RearLeft.set_speed(M_FORWARD);
-  M_RearRight.set_speed(M_FORWARD);
-}
-void moveBackward()
-{
-  M_FrontLeft.set_speed(M_BACKWARD);
-  M_FrontRight.set_speed(M_BACKWARD);
-  M_RearLeft.set_speed(M_BACKWARD);
-  M_RearRight.set_speed(M_BACKWARD);
-}
-void moveLeft()
-{
-  M_FrontLeft.set_speed(M_BACKWARD);
-  M_FrontRight.set_speed(M_FORWARD);
-  M_RearLeft.set_speed(M_FORWARD);
-  M_RearRight.set_speed(M_BACKWARD);
-}
-void moveRight()
-{
-  M_FrontLeft.set_speed(M_FORWARD);
-  M_FrontRight.set_speed(M_BACKWARD);
-  M_RearLeft.set_speed(M_BACKWARD);
-  M_RearRight.set_speed(M_FORWARD);
-}
-void moveLeftForward()
-{
-  M_FrontLeft.set_speed(M_STOP);
-  M_FrontRight.set_speed(M_FORWARD);
-  M_RearLeft.set_speed(M_FORWARD);
-  M_RearRight.set_speed(M_STOP);
-}
-void moveRightForward()
-{
-  M_FrontLeft.set_speed(M_FORWARD);
-  M_FrontRight.set_speed(M_STOP);
-  M_RearLeft.set_speed(M_STOP);
-  M_RearRight.set_speed(M_FORWARD);
-}
-void moveLeftBackward()
-{
-  M_FrontLeft.set_speed(M_BACKWARD);
-  M_FrontRight.set_speed(M_STOP);
-  M_RearLeft.set_speed(M_STOP);
-  M_RearRight.set_speed(M_BACKWARD);
-}
-void moveRightBackward()
-{
-  M_FrontLeft.set_speed(M_STOP);
-  M_FrontRight.set_speed(M_BACKWARD);
-  M_RearLeft.set_speed(M_BACKWARD);
-  M_RearRight.set_speed(M_STOP);
-}
-void rotateLeft()
-{
-  M_FrontLeft.set_speed(M_BACKWARD);
-  M_FrontRight.set_speed(M_FORWARD);
-  M_RearLeft.set_speed(M_BACKWARD);
-  M_RearRight.set_speed(M_FORWARD);
-}
-void rotateRight()
-{
-  M_FrontLeft.set_speed(M_FORWARD);
-  M_FrontRight.set_speed(M_BACKWARD);
-  M_RearLeft.set_speed(M_FORWARD);
-  M_RearRight.set_speed(M_BACKWARD);
-}
+Mecanum mMecanum;
 
 void cmdHandle()
 {
-  if (curr_cmd == last_cmd)
-    return;
+  // if (curr_cmd == last_cmd)
+  //   return;
 
   switch (curr_cmd)
   {
   case CMD_Stop:
-    Stop();
+    mMecanum.stop();
     DEBUG_PLN("Stop");
     break;
   case CMD_moveForward:
-    moveForward();
+    mMecanum.moveForward();
     DEBUG_PLN("moveForward");
     break;
   case CMD_moveBackward:
-    moveBackward();
+    mMecanum.moveBackward();
     DEBUG_PLN("moveBackward");
     break;
   case CMD_moveLeft:
-    moveLeft();
+    mMecanum.moveLeft();
     DEBUG_PLN("moveLeft");
     break;
   case CMD_moveRight:
-    moveRight();
+    mMecanum.moveRight();
     DEBUG_PLN("moveRight");
     break;
   case CMD_moveLeftForward:
-    moveLeftForward();
+    mMecanum.moveLeftForward();
     DEBUG_PLN("moveLeftForward");
     break;
   case CMD_moveRightForward:
-    moveRightForward();
+    mMecanum.moveRightForward();
     DEBUG_PLN("moveRightForward");
     break;
   case CMD_moveLeftBackward:
-    moveLeftBackward();
+    mMecanum.moveLeftBackward();
     DEBUG_PLN("moveLeftBackward");
     break;
   case CMD_moveRightBackward:
-    moveRightBackward();
+    mMecanum.moveRightBackward();
     DEBUG_PLN("moveRightBackward");
     break;
   case CMD_rotateLeft:
-    rotateLeft();
+    mMecanum.rotateLeft();
     DEBUG_PLN("rotateLeft");
     break;
   case CMD_rotateRight:
-    rotateRight();
+    mMecanum.rotateRight();
     DEBUG_PLN("rotateRight");
     break;
   }
@@ -205,13 +83,38 @@ void cmdHandle()
 
 void setup()
 {
-  // put your setup code here, to run once:
+  Serial.begin(9600);
+  mMecanum.init(2, 3, 4, 5, 6, 7, 8, 9);
 }
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
+  if (Serial.available()) {
+    curr_cmd = Serial.parseInt();
+    DEBUG_P("curr_cmd:");
+    DEBUG_PLN(curr_cmd);
+  }
 
+  cmdHandle();
+
+/* Test montor directions
+  M_FrontLeft.set_speed(M_FORWARD);
+  delay(2000);
+  M_FrontLeft.set_speed(M_STOP);
+
+  M_FrontRight.set_speed(M_FORWARD);
+  delay(2000);
+  M_FrontRight.set_speed(M_STOP);
+
+  M_RearLeft.set_speed(M_FORWARD);
+  delay(2000);
+  M_RearLeft.set_speed(M_STOP);
+
+  M_RearRight.set_speed(M_FORWARD);
+  delay(2000);
+  M_RearRight.set_speed(M_STOP);
+ */
+/* Test all movements
   Stop();
   delay(2000);
 
@@ -244,4 +147,5 @@ void loop()
 
   rotateRight();
   delay(2000);
+ */
 }
