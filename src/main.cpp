@@ -22,7 +22,6 @@
 #define CMD_rotateRight 10
 
 byte curr_cmd = CMD_Stop, last_cmd = CMD_Stop;
-int cmd_last_update = 0, timeout_cnt = 0;
 
 Mecanum mMecanum;
 
