@@ -23,75 +23,76 @@
 
 byte curr_cmd = CMD_Stop, last_cmd = CMD_Stop;
 
-Mecanum mMecanum;
+Mecanum vehicle;
 
 void cmdHandle()
 {
-  // if (curr_cmd == last_cmd)
-  //   return;
+  if (curr_cmd == last_cmd)
+    return;
 
   switch (curr_cmd)
   {
   case CMD_Stop:
-    mMecanum.stop();
-    DEBUG_PLN("Stop");
+    vehicle.stop();
+    // DEBUG_PLN("Stop");
     break;
   case CMD_moveForward:
-    mMecanum.moveForward();
-    DEBUG_PLN("moveForward");
+    vehicle.moveForward();
+    // DEBUG_PLN("moveForward");
     break;
   case CMD_moveBackward:
-    mMecanum.moveBackward();
-    DEBUG_PLN("moveBackward");
+    vehicle.moveBackward();
+    // DEBUG_PLN("moveBackward");
     break;
   case CMD_moveLeft:
-    mMecanum.moveLeft();
-    DEBUG_PLN("moveLeft");
+    vehicle.moveLeft();
+    // DEBUG_PLN("moveLeft");
     break;
   case CMD_moveRight:
-    mMecanum.moveRight();
-    DEBUG_PLN("moveRight");
+    vehicle.moveRight();
+    // DEBUG_PLN("moveRight");
     break;
   case CMD_moveLeftForward:
-    mMecanum.moveLeftForward();
-    DEBUG_PLN("moveLeftForward");
+    vehicle.moveLeftForward();
+    // DEBUG_PLN("moveLeftForward");
     break;
   case CMD_moveRightForward:
-    mMecanum.moveRightForward();
-    DEBUG_PLN("moveRightForward");
+    vehicle.moveRightForward();
+    // DEBUG_PLN("moveRightForward");
     break;
   case CMD_moveLeftBackward:
-    mMecanum.moveLeftBackward();
-    DEBUG_PLN("moveLeftBackward");
+    vehicle.moveLeftBackward();
+    // DEBUG_PLN("moveLeftBackward");
     break;
   case CMD_moveRightBackward:
-    mMecanum.moveRightBackward();
-    DEBUG_PLN("moveRightBackward");
+    vehicle.moveRightBackward();
+    // DEBUG_PLN("moveRightBackward");
     break;
   case CMD_rotateLeft:
-    mMecanum.rotateLeft();
-    DEBUG_PLN("rotateLeft");
+    vehicle.rotateLeft();
+    // DEBUG_PLN("rotateLeft");
     break;
   case CMD_rotateRight:
-    mMecanum.rotateRight();
-    DEBUG_PLN("rotateRight");
+    vehicle.rotateRight();
+    // DEBUG_PLN("rotateRight");
     break;
   }
+
   last_cmd = curr_cmd;
 }
 
 void setup()
 {
   Serial.begin(9600);
-  mMecanum.init(2, 3, 4, 5, 6, 7, 8, 9);
+  vehicle.init(2, 3, 4, 5, 6, 7, 8, 9);
 }
 
 void loop()
 {
   if (Serial.available()) {
     curr_cmd = Serial.parseInt();
-    DEBUG_P("curr_cmd:");
-    DEBUG_PLN(curr_cmd);
+    // DEBUG_P("curr_cmd:");
+    // DEBUG_PLN(curr_cmd);
   }
 
   cmdHandle();
